@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>NOMO | Plataforma de Gestão de Prévias Médicas</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            base: '#0A1526',
+                            card: '#11223B',
+                            cardBorder: 'rgba(255,255,255,0.08)',
+                            surface: 'rgba(255,255,255,0.03)',
+                            accent: '#DFC8A8',
+                            accentLight: '#F3E5D0',
+                            accentDark: '#B89B72',
+                            text: '#F8FAFC',
+                            textMuted: '#94A3B8'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cormorant', 'serif'],
+                        sans: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        body {
+            background-color: #0A1526;
+            color: #F8FAFC;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .liquid-glass {
+            background: rgba(17, 34, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(223, 200, 168, 0.15);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+        }
+        
+        .liquid-glass-subtle {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        
+        .btn-gold {
+            background: linear-gradient(135deg, #DFC8A8 0%, #B89B72 100%);
+            color: #0A1526;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-gold:hover {
+            box-shadow: 0 8px 25px -5px rgba(223, 200, 168, 0.4);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #F3E5D0 0%, #DFC8A8 100%);
+        }
+        
+        .btn-outline-gold {
+            border: 1px solid rgba(223, 200, 168, 0.3);
+            color: #DFC8A8;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-gold:hover {
+            background: rgba(223, 200, 168, 0.1);
+            border-color: #DFC8A8;
+            transform: translateY(-1px);
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Toast notification */
+        #toast {
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="selection:bg-brand-accent selection:text-brand-base">
+
+    <!-- ========================================== -->
+    <!-- 1. TELA PÚBLICA / SEGURANÇA (VISITANTE)     -->
+    <!-- ========================================== -->
+    <div id="publicScreen" class="min-h-screen flex flex-col justify-between relative overflow-hidden">
+        <!-- Background Lighting -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-brand-accent/5 rounded-full blur-[140px] pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-[500px] h-[400px] bg-[#25D366]/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <!-- Header Público -->
+        <header class="relative z-10 max-w-7xl mx-auto w-full px-6 py-6 flex justify-between items-center border-b border-white/5">
+            <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-brand-accent animate-pulse"></span>
+                <span class="font-serif text-2xl tracking-[0.2em] text-brand-text uppercase font-semibold">NOMO</span>
+            </div>
+            
+            <!-- Botão Discreto de Desbloqueio da Gestão -->
+            <button onclick="openPinModal()" class="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 hover:border-brand-accent/40 text-brand-textMuted hover:text-brand-accent text-xs uppercase tracking-wider transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <span>Acesso Gestor</span>
+            </button>
+        </header>
+
+        <!-- Conteúdo Principal de Apresentação Exclusiva -->
+        <main class="relative z-10 max-w-4xl mx-auto px-6 py-16 sm:py-24 text-center my-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-accent/30 bg-black/40 backdrop-blur-md mb-8">
+                <span class="w-2 h-2 rounded-full bg-brand-accent animate-ping"></span>
+                <span class="font-sans text-xs uppercase tracking-widest text-brand-accent font-medium">Ambiente Exclusivo de Homologação</span>
+            </div>
+
+            <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-light leading-tight mb-8">
+                Arquitetura Digital de Alto Padrão para <span class="italic text-brand-accent">Cirurgiões & Clínicas</span>
+            </h1>
+
+            <p class="font-sans text-base sm:text-lg text-brand-textMuted max-w-2xl mx-auto mb-12 leading-relaxed">
+                Desenvolvemos conceitos e estruturas digitais privadas de alta conversão para os principais expoentes da cirurgia plástica e estética médica. Nossas prévias são confidenciais e acessadas diretamente pelos titulares.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <!-- Botão direto para o WhatsApp do Desenvolvedor -->
+                <a href="https://wa.me/5511939537491?text=Ol%C3%A1%2C%20acessei%20o%20portal%20NOMO%20e%20gostaria%20de%20conhecer%20as%20solu%C3%A7%C3%B5es%20digitais%20exclusivas." target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#25D366] text-white font-semibold rounded-full shadow-[0_10px_30px_rgba(37,211,102,0.3)] hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-wider">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.711.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-5.824 4.74-10.563 10.564-10.563 5.826 0 10.564 4.739 10.564 10.564 0 5.826-4.738 10.563-10.564 10.563z"></path></svg>
+                    <span>Falar no WhatsApp: (11) 93953-7491</span>
+                </a>
+                
+                <button onclick="openPinModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-white/20 hover:border-brand-accent text-brand-text hover:text-brand-accent transition-all text-sm uppercase tracking-wider">
+                    <span>Acesso com Chave / PIN</span>
+                </button>
+            </div>
+            
+            <p class="mt-8 text-xs text-brand-textMuted/60 uppercase tracking-widest">
+                Dossiês e páginas sob protocolo estrito de confidencialidade
+            </p>
+        </main>
+
+        <!-- Footer Público -->
+        <footer class="relative z-10 max-w-7xl mx-auto w-full px-6 py-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-brand-textMuted">
+            <div>&copy; 2026 NOMO &bull; Engenharia Digital para Médicos</div>
+            <div class="flex items-center gap-6">
+                <span>Contato Direto: (11) 93953-7491</span>
+                <button onclick="openPinModal()" class="hover:text-brand-accent underline">Entrar no Painel</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. PAINEL DE GESTÃO (QUANDO AUTENTICADO)    -->
+    <!-- ========================================== -->
+    <div id="adminPanel" class="hidden min-h-screen pb-20">
+        <!-- Top Navigation -->
+        <header class="sticky top-0 z-40 bg-[#0A1526]/95 backdrop-blur-md border-b border-white/10 px-4 sm:px-8 py-4">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></div>
+                        <div>
+                            <span class="font-serif text-xl sm:text-2xl tracking-[0.15em] text-brand-text uppercase font-semibold">NOMO</span>
+                            <span class="hidden sm:inline-block ml-2 px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold tracking-wider bg-brand-accent/20 text-brand-accent">Gestão de Prévias</span>
+                        </div>
+                    </div>
+                    <button onclick="lockPanel()" class="md:hidden p-2 rounded-lg border border-white/10 text-brand-textMuted hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Stats Badges & Actions -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+                        <span class="text-brand-textMuted">Total Prévias:</span>
+                        <span class="font-bold text-brand-accent ml-1" id="statCount">57</span>
+                    </div>
+                    <div class="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+                        <span class="text-brand-textMuted">Otimização:</span>
+                        <span class="font-bold text-emerald-400 ml-1">100% Mobile</span>
+                    </div>
+                    <button onclick="openBatchModal()" class="px-3.5 py-1.5 rounded-xl bg-brand-accent/20 border border-brand-accent/40 text-brand-accent hover:bg-brand-accent/30 text-xs font-semibold uppercase tracking-wider transition-all flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        <span>Ver Tabela Geral</span>
+                    </button>
+                    <button onclick="lockPanel()" class="hidden md:inline-flex px-3.5 py-1.5 rounded-xl border border-red-500/30 text-red-300 hover:bg-red-500/20 text-xs font-medium transition-all items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <span>Bloquear</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-8 pt-8">
+            <!-- Barra de Configuração de Domínio da Vercel -->
+            <div class="liquid-glass rounded-2xl p-5 mb-8">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <h2 class="text-sm font-semibold uppercase tracking-wider text-brand-accent flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                            Domínio Base na Vercel
+                        </h2>
+                        <p class="text-xs text-brand-textMuted">
+                            Defina o domínio onde o projeto está hospedado. Todos os botões "Copiar Link" usarão esta URL como base.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div class="relative flex-1 sm:w-80">
+                            <input id="domainInput" type="text" placeholder="https://nomo.vercel.app" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-brand-text focus:outline-none focus:border-brand-accent transition-colors font-mono" oninput="saveDomain()">
+                        </div>
+                        <button onclick="useCurrentOrigin()" class="px-4 py-2.5 rounded-xl border border-white/20 hover:border-brand-accent text-xs font-semibold text-brand-text hover:text-brand-accent transition-all whitespace-nowrap">
+                            Usar Atual
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles: Busca & Filtros de Região/Especialidade -->
+            <div class="flex flex-col md:flex-row gap-4 mb-8">
+                <!-- Campo de Busca -->
+                <div class="relative flex-1">
+                    <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-brand-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <input id="searchInput" type="text" placeholder="Buscar por médico, clínica, DDD, telefone ou cidade..." class="w-full bg-black/40 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-brand-text placeholder-brand-textMuted/60 focus:outline-none focus:border-brand-accent transition-colors" oninput="filterCards()">
+                </div>
+
+                <!-- Filtros Rápidos -->
+                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                    <button onclick="setFilter('all', this)" class="filter-btn px-4 py-3 rounded-2xl bg-brand-accent text-brand-base font-semibold text-xs tracking-wider uppercase transition-all whitespace-nowrap">
+                        Todos (57)
+                    </button>
+                    <button onclick="setFilter('SP', this)" class="filter-btn px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-brand-textMuted hover:text-white text-xs tracking-wider uppercase transition-all whitespace-nowrap">
+                        SP
+                    </button>
+                    <button onclick="setFilter('RJ', this)" class="filter-btn px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-brand-textMuted hover:text-white text-xs tracking-wider uppercase transition-all whitespace-nowrap">
+                        RJ
+                    </button>
+                    <button onclick="setFilter('Sul', this)" class="filter-btn px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-brand-textMuted hover:text-white text-xs tracking-wider uppercase transition-all whitespace-nowrap">
+                        Sul
+                    </button>
+                    <button onclick="setFilter('Outros', this)" class="filter-btn px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-brand-textMuted hover:text-white text-xs tracking-wider uppercase transition-all whitespace-nowrap">
+                        Outras Regiões
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grade de Médicos Cadastrados -->
+            <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+
+            <!-- Estado Vazio se Busca não encontrar nada -->
+            <div id="emptyState" class="hidden text-center py-20">
+                <svg class="w-12 h-12 mx-auto text-brand-textMuted/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p class="text-base text-brand-textMuted">Nenhum médico encontrado com esse critério de busca.</p>
+                <button onclick="clearSearch()" class="mt-4 px-4 py-2 rounded-xl border border-brand-accent/40 text-brand-accent text-xs uppercase font-medium hover:bg-brand-accent/10">Limpar Busca</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. MODAL DE PIN / SENHA DE SEGURANÇA       -->
+    <!-- ========================================== -->
+    <div id="pinModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="liquid-glass max-w-md w-full rounded-3xl p-8 relative">
+            <button onclick="closePinModal()" class="absolute top-5 right-5 text-brand-textMuted hover:text-white p-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-brand-accent/20 border border-brand-accent/40 flex items-center justify-center mx-auto mb-4 text-brand-accent">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h3 class="font-serif text-2xl text-brand-text font-medium mb-1">Acesso do Gestor</h3>
+                <p class="text-xs text-brand-textMuted">Digite o PIN para desbloquear o painel com as 57 prévias.</p>
+            </div>
+
+            <form onsubmit="handlePinSubmit(event)" class="space-y-4">
+                <div>
+                    <input id="pinInput" type="password" maxlength="10" placeholder="Digite o PIN (Padrão: 2026)" class="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3.5 text-center text-lg tracking-widest text-brand-text focus:outline-none focus:border-brand-accent font-mono transition-colors" autocomplete="off" autofocus>
+                    <p id="pinError" class="text-xs text-rose-400 text-center mt-2 hidden">PIN incorreto. Tente novamente.</p>
+                </div>
+
+                <div class="flex items-center gap-2 justify-center text-xs text-brand-textMuted">
+                    <input type="checkbox" id="rememberPin" class="rounded accent-brand-accent" checked>
+                    <label for="rememberPin">Manter conectado neste navegador</label>
+                </div>
+
+                <button type="submit" class="btn-gold w-full py-3.5 rounded-xl font-semibold uppercase tracking-wider text-xs">
+                    Desbloquear Painel
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 4. MODAL DE TABELA GERAL / EXPORTAÇÃO      -->
+    <!-- ========================================== -->
+    <div id="batchModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="liquid-glass max-w-5xl w-full max-h-[90vh] rounded-3xl p-6 sm:p-8 flex flex-col relative">
+            <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                <div>
+                    <h3 class="font-serif text-2xl text-brand-text font-medium">Tabela Geral de Prévias (57 Médicos)</h3>
+                    <p class="text-xs text-brand-textMuted">Copie todos os links ou linhas formatadas para sua planilha.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="copyAllLinks()" class="btn-gold px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <span>Copiar Todos os Links</span>
+                    </button>
+                    <button onclick="closeBatchModal()" class="text-brand-textMuted hover:text-white p-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto mt-4 pr-1">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="sticky top-0 bg-[#0A1526] text-brand-accent border-b border-white/10 uppercase tracking-wider font-semibold">
+                        <tr>
+                            <th class="py-3 px-3">#</th>
+                            <th class="py-3 px-3">Médico / Clínica</th>
+                            <th class="py-3 px-3">Telefone</th>
+                            <th class="py-3 px-3">Link Prévia</th>
+                            <th class="py-3 px-3 text-right">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batchTableBody" class="divide-y divide-white/5 text-brand-textMuted">
+                        <!-- Gerado dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 5. TOAST NOTIFICATION                      -->
+    <!-- ========================================== -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#11223B] border border-brand-accent/40 text-brand-text px-5 py-3.5 rounded-2xl shadow-2xl">
+        <div class="w-6 h-6 rounded-full bg-brand-accent text-brand-base flex items-center justify-center font-bold text-xs">✓</div>
+        <div id="toastMessage" class="text-sm font-medium">Link copiado com sucesso!</div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- DADOS DOS 57 CLIENTES & SCRIPTS DA PLATAFORMA -->
+    <!-- ========================================== -->
+    <script>
+        const CLIENTS = [{"id": 1, "title": "Clínica Dr Carlos Gaspar Cirurgia Plástica", "clean_name": "Dr. Carlos Gaspar", "role": "Clínica Dr Carlos Gaspar (Cirurgião Titular / Responsável Técnico)", "phone": "(11) 96015-8581", "wa": "https://wa.me/5511960158581", "slug": "dr-carlos-gaspar", "orig_dir": "Dr. Carlos Gaspa", "has_orig": true}, {"id": 2, "title": "Dr Edson Freitas - Especialista em Rinoplastia USP", "clean_name": "Dr. Edson Freitas", "role": "Dr. Edson Freitas (Profissional Autônomo / Titular)", "phone": "(71) 99610-1799", "wa": "https://wa.me/5571996101799", "slug": "dr-edson-freitas", "orig_dir": "Dr. Edson Freitas-20261103T204243Z-1-001/Dr. Edson Freitas", "has_orig": true}, {"id": 3, "title": "Dra. Marcelly Cardoso Cirurgiã Plástica", "clean_name": "Dra. Marcelly Cardoso", "role": "Dra. Marcelly Cardoso (Profissional Autônomo / Titular)", "phone": "(21) 99265-7252", "wa": "https://wa.me/5521992657252", "slug": "dra-marcelly-cardoso", "orig_dir": "Dra. Marcelly Cardoso", "has_orig": true}, {"id": 4, "title": "Dra Ariane Ribeiro Cirurgiã Plástica - Palmas - TO", "clean_name": "Dra. Ariane Ribeiro", "role": "Dra. Ariane Ribeiro (Profissional Autônomo / Titular)", "phone": "(63) 98464-9004", "wa": "https://wa.me/5563984649004", "slug": "dra-ariane-ribeiro", "orig_dir": "Dra. Ariane Ribeiro", "has_orig": true}, {"id": 5, "title": "Dra. Camilla Rossiter | Cirurgia das Pálpebras - Blefaroplastia", "clean_name": "Dra. Camilla Rossiter", "role": "Dra. Camilla Rossiter (Profissional Autônomo / Titular)", "phone": "(82) 98828-3324", "wa": "https://wa.me/5582988283324", "slug": "dra-camilla-rossiter", "orig_dir": "Dra. Camilla Rossiter", "has_orig": true}, {"id": 6, "title": "Dr. Adriano Pereira | Cirurgia Plástica SP | Lipo HD SP | Prótese de mama SP| Abdominoplastia HD SP", "clean_name": "Dr. Adriano Pereira", "role": "Dr. Adriano Pereira (Profissional Autônomo / Titular)", "phone": "(11) 98990-8993", "wa": "https://wa.me/5511989908993", "slug": "dr-adriano-pereira", "orig_dir": null, "has_orig": false}, {"id": 7, "title": "Dra. Érica Nascimento | Especialista em Rinoplastia em Salvador", "clean_name": "Dra. Érica Nascimento", "role": "Dra. Érica Nascimento (Profissional Autônomo / Titular)", "phone": "(71) 99655-7734", "wa": "https://wa.me/5571996557734", "slug": "dra-erica-nascimento", "orig_dir": "Dra. Érica Nascimento", "has_orig": true}, {"id": 8, "title": "Clínica Dra. Lorena Amaral e Dr. Daniel Gonçalves", "clean_name": "Dra. Lorena Amaral & Dr. Daniel Gonçalves", "role": "Clínica Dra. Lorena Amaral e Dr. Daniel Gonçalves (Cirurgião Titular / Responsável Técnico)", "phone": "(91) 98306-3222", "wa": "https://wa.me/5591983063222", "slug": "dra-lorena-amaral-dr-daniel-goncalves", "orig_dir": "Dra. Lorena Amaral & Dr. Daniel Gonçalves", "has_orig": true}, {"id": 9, "title": "Dra Estela Biazotto Leão", "clean_name": "Dra. Estela Biazotto Leão", "role": "Dra. Estela Biazotto Leão (Profissional Autônomo / Titular)", "phone": "(34) 99941-0603", "wa": "https://wa.me/5534999410603", "slug": "dra-estela-biazotto-leao", "orig_dir": null, "has_orig": false}, {"id": 10, "title": "Clínica Dra Mariana Moraes", "clean_name": "Dra. Mariana Moraes", "role": "Clínica Dra Mariana Moraes (Cirurgião Titular / Responsável Técnico)", "phone": "(11) 96016-3781", "wa": "https://wa.me/5511960163781", "slug": "clinica-dra-mariana-moraes", "orig_dir": null, "has_orig": false}, {"id": 11, "title": "Dra. Thaís Mathias | Cirurgia Plástica e Transplante Capilar | Nova Friburgo & Teresópolis", "clean_name": "Dra. Thaís Mathias", "role": "Dra. Thaís Mathias (Profissional Autônomo / Titular)", "phone": "(21) 97302-0796", "wa": "https://wa.me/5521973020796", "slug": "dra-thais-mathias", "orig_dir": "Dra. Thaís Mathias", "has_orig": true}, {"id": 12, "title": "Clinica Barcellos Cirurgia Plástica | Dra. Cláudia Barcellos & Dra. Cristiane Barcellos", "clean_name": "Dra. Cláudia & Dra. Cristiane Barcellos", "role": "Clinica Barcellos (Cirurgião Titular / Responsável Técnico)", "phone": "(51) 99258-7637", "wa": "https://wa.me/5551992587637", "slug": "clinica-barcellos", "orig_dir": "Dra. Cláudia Barcellos & Dra. Cristiane Barcellos", "has_orig": true}, {"id": 13, "title": "Dr. Cleber Santos Junior", "clean_name": "Dr. Cleber Santos Junior", "role": "Dr. Cleber Santos Junior (Profissional Autônomo / Titular)", "phone": "(51) 99377-1048", "wa": "https://wa.me/5551993771048", "slug": "dr-cleber-santos-jr", "orig_dir": "Dr. Cleber Santos Jr", "has_orig": true}, {"id": 14, "title": "Dr. Geovani Baptista", "clean_name": "Dr. Geovani Baptista", "role": "Dr. Geovani Baptista (Profissional Autônomo / Titular)", "phone": "(54) 99674-4996", "wa": "https://wa.me/5554996744996", "slug": "dr-geovani-baptista", "orig_dir": "Dr. Geovani Baptista", "has_orig": true}, {"id": 15, "title": "Dra. Bárbara Regert - Cirurgia Plástica", "clean_name": "Dra. Bárbara Regert", "role": "Dra. Bárbara Regert (Profissional Autônomo / Titular)", "phone": "(51) 99744-6593", "wa": "https://wa.me/5551997446593", "slug": "dra-barbara-regert", "orig_dir": "Dra. Bárbara Regert", "has_orig": true}, {"id": 16, "title": "Dr. João Carlos Muller", "clean_name": "Dr. João Carlos Müller", "role": "Dr. João Carlos Muller (Profissional Autônomo / Titular)", "phone": "(53) 98401-6961", "wa": "https://wa.me/5553984016961", "slug": "dr-joao-carlos-muller", "orig_dir": "Dr. João Carlos Müller", "has_orig": true}, {"id": 17, "title": "Dr. Giovani Godinho - Cirurgião Plástico", "clean_name": "Dr. Giovani Godinho", "role": "Dr. Giovani Godinho (Profissional Autônomo / Titular)", "phone": "(62) 98330-1651", "wa": "https://wa.me/5562983301651", "slug": "dr-giovani-godinho", "orig_dir": "Dr. Giovani Godinho", "has_orig": true}, {"id": 18, "title": "Dr. William de C.Teixeira - Cirurgião Plástico", "clean_name": "Dr. William de C. Teixeira", "role": "Dr. William de C.Teixeira (Profissional Autônomo / Titular)", "phone": "(15) 99823-4727", "wa": "https://wa.me/5515998234727", "slug": "dr-william-teixeira", "orig_dir": "Dr. William de C. Teixeira", "has_orig": true}, {"id": 19, "title": "Dr. Rodrigo Inácio Fernandes | Cirurgião Plástico | Ourinhos", "clean_name": "Dr. Rodrigo Inácio Fernandes", "role": "Dr. Rodrigo Inácio Fernandes (Profissional Autônomo / Titular)", "phone": "(18) 99760-4080", "wa": "https://wa.me/5518997604080", "slug": "dr-rodrigo-inacio-fernandes", "orig_dir": null, "has_orig": false}, {"id": 20, "title": "Clínica Dr. Josué Okabayashi", "clean_name": "Dr. Josué Okabayashi", "role": "Clínica Dr. Josué Okabayashi (Cirurgião Titular / Responsável Técnico)", "phone": "(18) 99691-4943", "wa": "https://wa.me/5518996914943", "slug": "dr-josue-okabayashi", "orig_dir": "Dr. Josué Okabayashi", "has_orig": true}, {"id": 21, "title": "Dr Ádamo Yoshiki Cirurgião Plástico Pindamonhangaba", "clean_name": "Dr. Ádamo Yoshiki", "role": "Dr. Ádamo Yoshiki (Profissional Autônomo / Titular)", "phone": "(12) 99190-1755", "wa": "https://wa.me/5512991901755", "slug": "dr-adamo-yoshiki", "orig_dir": "Dr. Ádamo Yoshiki", "has_orig": true}, {"id": 22, "title": "Dr. Eric Frederik", "clean_name": "Dr. Eric Frederik", "role": "Dr. Eric Frederik (Profissional Autônomo / Titular)", "phone": "(21) 97047-4076", "wa": "https://wa.me/5521970474076", "slug": "dr-eric-frederik", "orig_dir": "Dr. Eric Frederik", "has_orig": true}, {"id": 23, "title": "Dr, Ricardo Picanço/ Cirurgião Plástico", "clean_name": "Dr. Ricardo Picanço", "role": "Dr. , Ricardo Picanço (Profissional Autônomo / Titular)", "phone": "(21) 99299-5153", "wa": "https://wa.me/5521992995153", "slug": "dr-ricardo-picanco", "orig_dir": "Dr. Ricardo Picanço", "has_orig": true}, {"id": 24, "title": "DR Alberto Andrade Cirurgia Plástica", "clean_name": "Dr. Alberto Andrade", "role": "Dr. Alberto Andrade (Profissional Autônomo / Titular)", "phone": "(21) 95959-3577", "wa": "https://wa.me/5521959593577", "slug": "dr-alberto-andrade", "orig_dir": "Dr. Alberto Andrade", "has_orig": true}, {"id": 25, "title": "Cirurgia Plástica Dr.Marcelo Nanci", "clean_name": "Dr. Marcelo Nanci", "role": "Cirurgia (Profissional Autônomo / Titular)", "phone": "(21) 96740-0615", "wa": "https://wa.me/5521967400615", "slug": "dr-marcelo-nanci", "orig_dir": "Dr. Marcelo Nanci", "has_orig": true}, {"id": 26, "title": "Clínica Dra Ana Mamari", "clean_name": "Dra. Ana Mamari", "role": "Clínica Dra Ana Mamari (Cirurgião Titular / Responsável Técnico)", "phone": "(21) 99994-6662", "wa": "https://wa.me/5521999946662", "slug": "clinica-dra-ana-mamari", "orig_dir": null, "has_orig": false}, {"id": 27, "title": "Dra. Karin Lerner, Cirurgião plástico", "clean_name": "Dra. Karin Lerner", "role": "Dra. Karin Lerner, (Profissional Autônomo / Titular)", "phone": "(21) 99871-8121", "wa": "https://wa.me/5521998718121", "slug": "dra-karin-lerner", "orig_dir": "Dra. Karin Lerner", "has_orig": true}, {"id": 28, "title": "Dr Cláudio Ramos | Cirurgião Plástico", "clean_name": "Dr. Cláudio Ramos", "role": "Dr. Cláudio Ramos (Profissional Autônomo / Titular)", "phone": "(21) 96784-7519", "wa": "https://wa.me/5521967847519", "slug": "dr-claudio-ramos", "orig_dir": "Dr. Cláudio Ramos", "has_orig": true}, {"id": 29, "title": "Dr. André Ramos", "clean_name": "Dr. André Ramos", "role": "Dr. André Ramos (Profissional Autônomo / Titular)", "phone": "(21) 99591-2024", "wa": "https://wa.me/5521995912024", "slug": "dr-andre-ramos", "orig_dir": "Dr. André Ramos", "has_orig": true}, {"id": 30, "title": "Dra Milena Burégio", "clean_name": "Dra. Milena Burégio", "role": "Dra. Milena Burégio (Profissional Autônomo / Titular)", "phone": "(21) 99705-2591", "wa": "https://wa.me/5521997052591", "slug": "dra-milena-buregio", "orig_dir": "Dra. Milena Burégio", "has_orig": true}, {"id": 31, "title": "Cirurgia Plástica Raul Kastrup", "clean_name": "Dr. Raul Kastrup", "role": "Cirurgia (Profissional Autônomo / Titular)", "phone": "(21) 99968-6189", "wa": "https://wa.me/5521999686189", "slug": "dr-raul-kastrup", "orig_dir": "Dr. Raul Kastrup", "has_orig": true}, {"id": 32, "title": "Dra. Wania Furtado - Cirurgião Plástico em Nova Friburgo | Rinoplastia | Mamoplastia | Lipoaspiração | Abdominoplastia", "clean_name": "Dra. Wania Furtado", "role": "Dra. Wania Furtado (Profissional Autônomo / Titular)", "phone": "(22) 99797-0222", "wa": "https://wa.me/5522997970222", "slug": "dra-wania-furtado", "orig_dir": "Dra. Wania Furtado", "has_orig": true}, {"id": 33, "title": "Dr. Dante Locateli", "clean_name": "Dr. Dante Locateli", "role": "Dr. Dante Locateli (Profissional Autônomo / Titular)", "phone": "(24) 99961-0177", "wa": "https://wa.me/5524999610177", "slug": "dr-dante-locateli", "orig_dir": "Dr. Dante Vitoriano Locateli", "has_orig": true}, {"id": 34, "title": "Cirurgião Plástico Dr. Paulo Hvenegaard", "clean_name": "Dr. Paulo Hvenegaard", "role": "Cirurgião (Profissional Autônomo / Titular)", "phone": "(24) 99811-1277", "wa": "https://wa.me/5524998111277", "slug": "dr-paulo-hvenegaard", "orig_dir": "Dr. Paulo Hvenegaard", "has_orig": true}, {"id": 35, "title": "Dr Carlos Henrique Aquino Barbosa", "clean_name": "Dr. Carlos Henrique Aquino", "role": "Dr. Carlos Henrique Aquino Barbosa (Profissional Autônomo / Titular)", "phone": "(22) 99975-1817", "wa": "https://wa.me/5522999751817", "slug": "dr-carlos-henrique-aquino", "orig_dir": "Dr. Carlos Henrique Aquino Barbosa", "has_orig": true}, {"id": 36, "title": "Dr Marcio Mittmann Canaã dos Carajas| Cirurgia Plástica, Prótese de Silicone, Abdominoplastia, Mamoplastia", "clean_name": "Dr. Márcio Mittmann", "role": "Dr. Marcio Mittmann Canaã dos Carajas (Profissional Autônomo / Titular)", "phone": "(94) 99199-3490", "wa": "https://wa.me/5594991993490", "slug": "dr-marcio-mittmann", "orig_dir": "Dr. Márcio Mittmann", "has_orig": true}, {"id": 37, "title": "Dra. Laís Isobe Cirurgia Plástica e Transplante Capilar", "clean_name": "Dra. Laís Isobe", "role": "Dra. Laís Isobe (Profissional Autônomo / Titular)", "phone": "(43) 98828-3181", "wa": "https://wa.me/5543988283181", "slug": "dra-lais-isobe", "orig_dir": "Dra. Laís Isobe", "has_orig": true}, {"id": 38, "title": "La Sève - Cirurgia Plástica e Dermatologia", "clean_name": "La Sève", "role": "La Sève (Profissional Autônomo / Titular)", "phone": "(16) 99258-1181", "wa": "https://wa.me/5516992581181", "slug": "la-seve-cirurgia-plastica", "orig_dir": "La Sève Cirurgia Plástica e Dermatologia", "has_orig": true}, {"id": 39, "title": "Dra Vanessa Rajo - Cirurgiã Plástica e Mastologista", "clean_name": "Dra. Vanessa Rajo", "role": "Dra. Vanessa Rajo (Profissional Autônomo / Titular)", "phone": "(21) 99664-0714", "wa": "https://wa.me/5521996640714", "slug": "dra-vanessa-rajo", "orig_dir": "Dra. Vanessa Rajo", "has_orig": true}, {"id": 40, "title": "Plastical: Seu Portal da Cirurgia Plástica", "clean_name": "Plastical", "role": "Plastical: Seu Portal da (Profissional Autônomo / Titular)", "phone": "(31) 98046-1092", "wa": "https://wa.me/5531980461092", "slug": "plastical", "orig_dir": "Plastical", "has_orig": true}, {"id": 41, "title": "Unique Cirurgia Plástica Brasilia", "clean_name": "Unique Cirurgia Plástica", "role": "Unique (Profissional Autônomo / Titular)", "phone": "(61) 98314-7771", "wa": "https://wa.me/5561983147771", "slug": "unique-cirurgia-plastica", "orig_dir": null, "has_orig": false}, {"id": 42, "title": "Dr. Wolff Hans, Cirurgião Plastico em Salvador", "clean_name": "Dr. Wolff Hans", "role": "Dr. Wolff Hans, (Profissional Autônomo / Titular)", "phone": "(71) 99201-8177", "wa": "https://wa.me/5571992018177", "slug": "dr-wolff-hans", "orig_dir": "Dr. Wolff Hans", "has_orig": true}, {"id": 43, "title": "Clínica Avellan Cirurgia Plástica Dr. Lauro Avellan", "clean_name": "Dr. Lauro Avellan", "role": "Clínica Avellan (Cirurgião Titular / Responsável Técnico)", "phone": "(31) 98987-5659", "wa": "https://wa.me/5531989875659", "slug": "dr-lauro-avellan", "orig_dir": "Dr. Lauro Avellan (1)", "has_orig": true}, {"id": 44, "title": "Dr Johnny Hayck Cirurgiao Plastico", "clean_name": "Dr. Johnny Hayck", "role": "Dr. Johnny Hayck (Profissional Autônomo / Titular)", "phone": "(31) 99449-2468", "wa": "https://wa.me/5531994492468", "slug": "dr-johnny-hayck", "orig_dir": "Dr. Johnny Hayck", "has_orig": true}, {"id": 45, "title": "Dr. Daniel Dias | Cirurgião Plástico em Recife", "clean_name": "Dr. Daniel Dias", "role": "Dr. Daniel Dias (Profissional Autônomo / Titular)", "phone": "(81) 98220-9416", "wa": "https://wa.me/5581982209416", "slug": "dr-daniel-dias", "orig_dir": "Dr. Daniel Dias (1)", "has_orig": true}, {"id": 46, "title": "Dr. Rubem Lima - Blefaroplastia e Plástica Ocular em Recife", "clean_name": "Dr. Rubem Lima", "role": "Dr. Rubem Lima (Profissional Autônomo / Titular)", "phone": "(81) 99252-5334", "wa": "https://wa.me/5581992525334", "slug": "dr-rubem-lima", "orig_dir": "Dr. Rubem Lima", "has_orig": true}, {"id": 47, "title": "Dra. Rafaela Cavaca - Cirurgia Plástica", "clean_name": "Dra. Rafaela Cavaca", "role": "Dra. Rafaela Cavaca (Profissional Autônomo / Titular)", "phone": "(11) 91628-7180", "wa": "https://wa.me/5511916287180", "slug": "dra-rafaela-cavaca", "orig_dir": "Dra. Rafaela Cavaca", "has_orig": true}, {"id": 48, "title": "Dra Leila Azem", "clean_name": "Dra. Leila Azem", "role": "Dra. Leila Azem (Profissional Autônomo / Titular)", "phone": "(21) 99661-0612", "wa": "https://wa.me/5521996610612", "slug": "dra-leila-azem", "orig_dir": "Dra. Leila Azem", "has_orig": true}, {"id": 49, "title": "Dr. Ricardo Fabrini", "clean_name": "Dr. Ricardo Fabrini", "role": "Dr. Ricardo Fabrini (Profissional Autônomo / Titular)", "phone": "(21) 99168-9799", "wa": "https://wa.me/5521991689799", "slug": "dr-ricardo-fabrini", "orig_dir": "Dr. Ricardo Fabrini", "has_orig": true}, {"id": 50, "title": "Dr. Bruno Janin - Cirurgião Plástico", "clean_name": "Dr. Bruno Janin", "role": "Dr. Bruno Janin (Profissional Autônomo / Titular)", "phone": "(21) 97100-4710", "wa": "https://wa.me/5521971004710", "slug": "dr-bruno-janin", "orig_dir": null, "has_orig": false}, {"id": 51, "title": "Dr. Bruno Gazire", "clean_name": "Dr. Bruno Gazire", "role": "Dr. Bruno Gazire (Profissional Autônomo / Titular)", "phone": "(22) 99824-3581", "wa": "https://wa.me/5522998243581", "slug": "dr-bruno-gazire", "orig_dir": "Dr. Bruno Gazire", "has_orig": true}, {"id": 52, "title": "Dr. Euller Granato", "clean_name": "Dr. Euller Granato", "role": "Dr. Euller Granato (Profissional Autônomo / Titular)", "phone": "(33) 98428-7294", "wa": "https://wa.me/5533984287294", "slug": "dr-euller-granato", "orig_dir": "Dr. Euller Granato", "has_orig": true}, {"id": 53, "title": "Dr. Iarley Peron Faria", "clean_name": "Dr. Iarley Peron Faria", "role": "Dr. Iarley Peron Faria (Profissional Autônomo / Titular)", "phone": "(33) 99978-1367", "wa": "https://wa.me/5533999781367", "slug": "dr-iarley-peron-faria", "orig_dir": "Dr. Iarley Peron Faria", "has_orig": true}, {"id": 54, "title": "Dr. Manoel Lopes - Cirurgia Plástica", "clean_name": "Dr. Manoel Lopes", "role": "Dr. Manoel Lopes (Profissional Autônomo / Titular)", "phone": "(33) 99180-1100", "wa": "https://wa.me/5533991801100", "slug": "dr-manoel-lopes", "orig_dir": "Dr. Manoel Lopes", "has_orig": true}, {"id": 55, "title": "Cirurgia Plastica Dr Afranio Bernardes", "clean_name": "Dr. Afrânio Bernardes", "role": "Cirurgia (Profissional Autônomo / Titular)", "phone": "(41) 99621-9875", "wa": "https://wa.me/5541996219875", "slug": "dr-afranio-bernardes", "orig_dir": "Dr. Afrânio Bernardes", "has_orig": true}, {"id": 56, "title": "Leandro Vasques - Cirurgia Plástica", "clean_name": "Dr. Leandro Vasques", "role": "Leandro Vasques (Profissional Autônomo / Titular)", "phone": "(41) 98843-2406", "wa": "https://wa.me/5541988432406", "slug": "dr-leandro-vasques", "orig_dir": null, "has_orig": false}, {"id": 57, "title": "Dr. Antônio Dourado - Cirurgia Plástica", "clean_name": "Dr. Antônio Dourado", "role": "Dr. Antônio Dourado (Profissional Autônomo / Titular)", "phone": "(41) 98507-4952", "wa": "https://wa.me/5541985074952", "slug": "dr-antonio-dourado", "orig_dir": null, "has_orig": false}];
+        const DEFAULT_PIN = "2026";
+        const USER_PHONE = "5511939537491";
+
+        let currentFilter = 'all';
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            // Checa autenticação salva
+            const isAuth = localStorage.getItem('nomo_auth') === 'true';
+            if (isAuth) {
+                showAdminPanel();
+            }
+
+            // Inicializa campo de domínio
+            const savedDomain = localStorage.getItem('nomo_domain') || window.location.origin;
+            document.getElementById('domainInput').value = savedDomain;
+
+            renderCards();
+            renderBatchTable();
+        });
+
+        function getBaseDomain() {
+            let d = document.getElementById('domainInput').value.trim();
+            if (!d) d = window.location.origin;
+            return d.replace(/\/+$/, '');
+        }
+
+        function getPreviewUrl(slug) {
+            return `${getBaseDomain()}/p/${slug}/`;
+        }
+
+        function saveDomain() {
+            const d = document.getElementById('domainInput').value.trim();
+            localStorage.setItem('nomo_domain', d);
+            renderCards();
+            renderBatchTable();
+        }
+
+        function useCurrentOrigin() {
+            document.getElementById('domainInput').value = window.location.origin;
+            saveDomain();
+            showToast("Domínio atual aplicado!");
+        }
+
+        // Renderiza os Cards dos Médicos
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            const term = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+
+            const filtered = CLIENTS.filter(c => {
+                // Filtro por categoria / região
+                if (currentFilter === 'SP' && !c.phone.includes('(11)') && !c.phone.includes('(12)') && !c.phone.includes('(15)') && !c.phone.includes('(16)') && !c.phone.includes('(18)')) return false;
+                if (currentFilter === 'RJ' && !c.phone.includes('(21)') && !c.phone.includes('(22)') && !c.phone.includes('(24)')) return false;
+                if (currentFilter === 'Sul' && !c.phone.includes('(41)') && !c.phone.includes('(43)') && !c.phone.includes('(51)') && !c.phone.includes('(53)') && !c.phone.includes('(54)')) return false;
+                if (currentFilter === 'Outros' && (c.phone.includes('(11)') || c.phone.includes('(21)') || c.phone.includes('(41)') || c.phone.includes('(51)'))) return false;
+
+                // Filtro por texto
+                if (!term) return true;
+                const matchName = c.clean_name.toLowerCase().includes(term);
+                const matchTitle = c.title.toLowerCase().includes(term);
+                const matchRole = c.role.toLowerCase().includes(term);
+                const matchPhone = c.phone.includes(term);
+                const matchSlug = c.slug.includes(term);
+                return matchName || matchTitle || matchRole || matchPhone || matchSlug;
+            });
+
+            document.getElementById('statCount').innerText = filtered.length;
+            const empty = document.getElementById('emptyState');
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            } else {
+                empty.classList.add('hidden');
+            }
+
+            grid.innerHTML = filtered.map(c => {
+                const previewUrl = getPreviewUrl(c.slug);
+                const waClean = c.wa;
+                const waPitchText = encodeURIComponent(`Olá ${c.clean_name}, tudo bem? Desenvolvi uma prévia visual exclusiva e sob medida do novo site da sua clínica, 100% fluida e otimizada para celular. Veja no seu smartphone: ${previewUrl}`);
+                const waDirectLink = `${waClean}?text=${waPitchText}`;
+
+                return `
+                <div class="liquid-glass rounded-3xl p-6 flex flex-col justify-between hover:border-brand-accent/40 transition-all duration-300 group">
+                    <div>
+                        <!-- Topo Card: Badge e Tag -->
+                        <div class="flex items-center justify-between gap-2 mb-4">
+                            <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Mobile Ready
+                            </span>
+                            <span class="text-xs font-mono text-brand-textMuted/60 truncate max-w-[150px]">
+                                /p/${c.slug}
+                            </span>
+                        </div>
+
+                        <!-- Nome e Título -->
+                        <h3 class="font-serif text-2xl text-brand-text font-semibold mb-1 group-hover:text-brand-accent transition-colors">
+                            ${c.clean_name}
+                        </h3>
+                        <p class="text-xs text-brand-textMuted line-clamp-2 mb-4 leading-relaxed">
+                            ${c.role || c.title}
+                        </p>
+
+                        <!-- Telefone & WhatsApp -->
+                        <div class="flex items-center gap-2 p-3 rounded-2xl bg-black/30 border border-white/5 mb-5">
+                            <svg class="w-4 h-4 text-[#25D366] shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.711.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-5.824 4.74-10.563 10.564-10.563 5.826 0 10.564 4.739 10.564 10.564 0 5.826-4.738 10.563-10.564 10.563z"></path></svg>
+                            <span class="text-xs font-medium text-brand-text">${c.phone}</span>
+                        </div>
+                    </div>
+
+                    <!-- Botões de Ação do Card -->
+                    <div class="space-y-2 pt-2 border-t border-white/5">
+                        <div class="grid grid-cols-2 gap-2">
+                            <!-- Copiar Link -->
+                            <button onclick="copyToClipboard('${previewUrl}', 'Link de ${c.clean_name} copiado!')" class="btn-gold py-2.5 px-3 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                <span>Copiar Link</span>
+                            </button>
+
+                            <!-- Abrir Prévia em Nova Aba (Site Puro) -->
+                            <a href="${previewUrl}" target="_blank" class="btn-outline-gold py-2.5 px-3 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 text-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                <span>Abrir Prévia</span>
+                            </a>
+                        </div>
+
+                        <!-- Chamar no WhatsApp -->
+                        <a href="${waDirectLink}" target="_blank" class="w-full py-2.5 px-3 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/30 text-[#25D366] text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.711.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-5.824 4.74-10.563 10.564-10.563 5.826 0 10.564 4.739 10.564 10.564 0 5.826-4.738 10.563-10.564 10.563z"></path></svg>
+                            <span>WhatsApp do Doutor</span>
+                        </a>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // Renderiza Tabela no Modal Batch
+        function renderBatchTable() {
+            const tbody = document.getElementById('batchTableBody');
+            tbody.innerHTML = CLIENTS.map(c => {
+                const url = getPreviewUrl(c.slug);
+                return `
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="py-3 px-3 font-mono">${c.id}</td>
+                    <td class="py-3 px-3 font-medium text-brand-text">${c.clean_name}</td>
+                    <td class="py-3 px-3">${c.phone}</td>
+                    <td class="py-3 px-3 font-mono text-brand-accent truncate max-w-[280px]">
+                        <a href="${url}" target="_blank" class="hover:underline">${url}</a>
+                    </td>
+                    <td class="py-3 px-3 text-right">
+                        <button onclick="copyToClipboard('${url}', 'Link copiado!')" class="px-3 py-1 rounded-lg bg-brand-accent/20 hover:bg-brand-accent text-brand-accent hover:text-brand-base font-semibold transition-all">
+                            Copiar
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        // Funções de Filtro e Busca
+        function filterCards() {
+            renderCards();
+        }
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.className = 'filter-btn px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-brand-textMuted hover:text-white text-xs tracking-wider uppercase transition-all whitespace-nowrap';
+            });
+            btn.className = 'filter-btn px-4 py-3 rounded-2xl bg-brand-accent text-brand-base font-semibold text-xs tracking-wider uppercase transition-all whitespace-nowrap';
+            renderCards();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            setFilter('all', document.querySelectorAll('.filter-btn')[0]);
+        }
+
+        // Modais e Autenticação
+        function openPinModal() {
+            document.getElementById('pinModal').classList.remove('hidden');
+            document.getElementById('pinModal').classList.add('flex');
+            document.getElementById('pinInput').focus();
+        }
+
+        function closePinModal() {
+            document.getElementById('pinModal').classList.add('hidden');
+            document.getElementById('pinModal').classList.remove('flex');
+            document.getElementById('pinError').classList.add('hidden');
+            document.getElementById('pinInput').value = '';
+        }
+
+        function handlePinSubmit(e) {
+            e.preventDefault();
+            const val = document.getElementById('pinInput').value.trim();
+            if (val === DEFAULT_PIN) {
+                if (document.getElementById('rememberPin').checked) {
+                    localStorage.setItem('nomo_auth', 'true');
+                }
+                closePinModal();
+                showAdminPanel();
+                showToast("Painel desbloqueado com sucesso!");
+            } else {
+                document.getElementById('pinError').classList.remove('hidden');
+            }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('publicScreen').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            renderCards();
+        }
+
+        function lockPanel() {
+            localStorage.removeItem('nomo_auth');
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('publicScreen').classList.remove('hidden');
+            showToast("Painel bloqueado com segurança.");
+        }
+
+        function openBatchModal() {
+            renderBatchTable();
+            document.getElementById('batchModal').classList.remove('hidden');
+            document.getElementById('batchModal').classList.add('flex');
+        }
+
+        function closeBatchModal() {
+            document.getElementById('batchModal').classList.add('hidden');
+            document.getElementById('batchModal').classList.remove('flex');
+        }
+
+        function copyToClipboard(text, message) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(message || "Copiado para a área de transferência!");
+            }).catch(() => {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast(message || "Copiado!");
+            });
+        }
+
+        function copyAllLinks() {
+            const lines = CLIENTS.map(c => `${c.clean_name}	${c.phone}	${getPreviewUrl(c.slug)}`).join('\n');
+            copyToClipboard(lines, "Todos os 57 links copiados para a área de transferência!");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

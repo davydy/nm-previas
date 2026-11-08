@@ -1,0 +1,9 @@
+{
+  "name": "nomo-previews",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plataforma centralizada de prévias e sites de alta conversão para cirurgiões plásticos e clínicas médicas",
+  "scripts": {
+    "start": "npx serve ."
+  }
+}

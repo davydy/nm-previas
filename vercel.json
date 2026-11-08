@@ -1,0 +1,43 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/p/(.*)/arquivos/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/p/:slug",
+      "destination": "/p/:slug/index.html"
+    },
+    {
+      "source": "/p/:slug/",
+      "destination": "/p/:slug/index.html"
+    },
+    {
+      "source": "/:slug([a-z0-9-]+)",
+      "destination": "/p/:slug/index.html"
+    },
+    {
+      "source": "/:slug([a-z0-9-]+)/arquivos/:path*",
+      "destination": "/p/:slug/arquivos/:path*"
+    }
+  ]
+}
