@@ -24,7 +24,7 @@ Ecossistema digital de alta conversão desenvolvido para apresentação de conce
 
 ## 🔒 1. Segurança & Tela Pública Anti-Curioso
 
-Caso algum médico, cliente ou visitante tente **apagar o final da URL** e acessar o domínio raiz (`https://seu-dominio.vercel.app`):
+Caso algum médico, cliente ou visitante tente **apagar o final da URL** e acessar o domínio raiz (`https://nomo-sites.vercel.app`):
 - Ele **NÃO** verá a lista de concorrentes nem os dados dos outros clientes.
 - Ele verá uma **página de alto padrão institucional** (*NOMO - Ambiente Exclusivo de Homologação*).
 - Há um botão de destaque redirecionando para o **seu WhatsApp**: `(11) 93953-7491`.
@@ -54,7 +54,7 @@ Ao criar o projeto na [Vercel](https://vercel.com), você pode escolher um nome 
 
 | Sugestão de Subdomínio | URL Completa | Perfil de Posicionamento |
 | :--- | :--- | :--- |
-| **nomo** *(Recomendado)* | `nomo.vercel.app` | Ultra-sofisticado, parece uma consultoria de elite |
+| **nomo-sites** *(Oficial)* | `nomo-sites.vercel.app` | Domínio oficial de produção da plataforma |
 | **medpreview** | `medpreview.vercel.app` | Direto ao ponto, internacional e tecnológico |
 | **medprevia** | `medprevia.vercel.app` | Claro e natural em português |
 | **vitrinemedica** | `vitrinemedica.vercel.app` | Comercial e de alto valor percebido |
@@ -77,7 +77,7 @@ Ao criar o projeto na [Vercel](https://vercel.com), você pode escolher um nome 
    - *Set up and deploy?* **Y**
    - *Which scope?* Selecione sua conta
    - *Link to existing project?* **N**
-   - *What's your project's name?* Digite o nome desejado (ex: `nomo`)
+   - *What's your project's name?* Digite o nome: `nomo-sites`
    - *In which directory is your code located?* `./` (Enter)
 4. Pronto! O projeto será carregado e a URL ao vivo será gerada.
 
