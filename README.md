@@ -29,8 +29,8 @@ Caso algum médico, cliente ou visitante tente **apagar o final da URL** e acess
 - Ele verá uma **página de alto padrão institucional** (*NOMO - Ambiente Exclusivo de Homologação*).
 - Há um botão de destaque redirecionando para o **seu WhatsApp**: `(11) 93953-7491`.
 - **Acesso ao Painel do Gestor:**
-  - Clique no botão discreto **"Acesso Gestor"** no canto superior direito ou rodapé.
-  - Insira o PIN de segurança padrão: **`2026`**.
+  - Clique no botão discreto **"Acesso Gestor"** no canto superior direito.
+  - Insira o PIN de segurança: **`0726`**.
   - O painel desbloqueia instantaneamente com busca, filtros e botões de cópia.
 
 ---
