@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "trailingSlash": false,
+  "trailingSlash": true,
   "headers": [
     {
       "source": "/(.*)",
@@ -24,11 +24,15 @@
   ],
   "rewrites": [
     {
+      "source": "/p/:slug/",
+      "destination": "/p/:slug/index.html"
+    },
+    {
       "source": "/p/:slug",
       "destination": "/p/:slug/index.html"
     },
     {
-      "source": "/p/:slug/",
+      "source": "/:slug([a-z0-9-]+)/",
       "destination": "/p/:slug/index.html"
     },
     {
